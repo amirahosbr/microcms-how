@@ -1,0 +1,23 @@
+{
+  "name": "microcms-how",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxtjs/i18n": "^10.2.1",
+    "microcms-js-sdk": "^2.5.0",
+    "nuxt": "^4.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^25.0.3",
+    "tailwindcss": "^4.0.0",
+    "vue-tsc": "^3.2.2"
+  }
+}
