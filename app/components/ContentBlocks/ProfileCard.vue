@@ -14,6 +14,11 @@ const displayBio = computed(() => {
   return bioHtml ? useSanitize().sanitizeHtml(bioHtml) : "";
 });
 
+// Check if locale-specific content exists
+const hasContent = computed(() => {
+  return locale.value === "en" ? !!props.block.bio_en : !!props.block.bio;
+});
+
 // Extract position value from array or string format
 const extractPosition = (pos: "left" | "right" | ("left" | "right")[] | undefined): "left" | "right" | null => {
   if (!pos) return null;
@@ -37,8 +42,8 @@ const isImageRight = computed(() => imagePosition.value === "right");
 
 <template>
   <!-- Text wrapping layout: image floats, text flows around it (like Microsoft Word) -->
-  <section class="profile-card-wrapper">
-    <!-- Image - floats to allow text wrapping -->
+  <section v-if="hasContent" class="profile-card-wrapper">
+    <!-- Image - only show if locale-specific content exists -->
     <div 
       v-if="block.image" 
       class="profile-image-float"
@@ -84,7 +89,7 @@ const isImageRight = computed(() => imagePosition.value === "right");
 
 /* Mobile: stack image and text */
 .profile-image-float {
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
   float: none;
   display: block;
   margin-left: auto;
@@ -94,19 +99,19 @@ const isImageRight = computed(() => imagePosition.value === "right");
 /* Desktop: float image to allow text wrapping */
 @media (min-width: 768px) {
   .profile-image-float {
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     margin-top: 0;
   }
 
   .profile-image-float.float-right {
     float: right;
-    margin-left: 1.5rem;
+    margin-left: 16px;
     margin-right: 0;
   }
 
   .profile-image-float.float-left {
     float: left;
-    margin-right: 1.5rem;
+    margin-right: 16px;
     margin-left: 0;
   }
 }
@@ -115,6 +120,20 @@ const isImageRight = computed(() => imagePosition.value === "right");
 .profile-text-content {
   overflow-wrap: break-word;
   word-wrap: break-word;
+}
+
+/* Spacing between paragraphs and elements in bio */
+.profile-text-content :deep(p) {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.profile-text-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.profile-text-content :deep(strong) {
+  font-weight: 700;
 }
 
 /* Clear float */
@@ -128,6 +147,6 @@ const isImageRight = computed(() => imagePosition.value === "right");
   display: block;
   max-width: 100%;
   height: auto;
-  margin: 1rem 0;
+  margin: 16px 0;
 }
 </style>

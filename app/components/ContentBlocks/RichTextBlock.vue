@@ -8,40 +8,31 @@ type Props = {
 const props = defineProps<Props>();
 const { locale } = useI18n();
 
+// Get content - no fallback, only show if locale-specific content exists
 const displayContent = computed(() => {
-  const content = locale.value === "en"
-    ? (props.block.content_en || props.block.content)
-    : (props.block.content || props.block.content_en);
+  const content = locale.value === "en" ? props.block.content_en : props.block.content;
   
   if (!content) return "";
   
   const sanitized = useSanitize().sanitizeHtml(content);
   
   // Post-process HTML to wrap consecutive figures in a grid container
-  // Process all consecutive figure pairs using a loop to catch all pairs
   let processed = sanitized;
   let previousProcessed = '';
   let iterations = 0;
-  const maxIterations = 10; // Safety limit
+  const maxIterations = 10;
   
-  // Keep processing until no more changes (to catch all pairs)
   while (processed !== previousProcessed && iterations < maxIterations) {
     previousProcessed = processed;
     iterations++;
     
-    // Match pairs of figures that are close together (separated by whitespace, br, or empty p tags)
-    // Only match if they're not already inside a figure-grid div
     processed = processed.replace(
       /(<figure[^>]*>[\s\S]*?<\/figure>)(\s*(?:<br\s*\/?>|<p>\s*<\/p>)?\s*)(<figure[^>]*>[\s\S]*?<\/figure>)/gi,
       (match, fig1, space, fig2, offset, string) => {
-        // Check if this match is already inside a figure-grid div
         const beforeMatch = string.substring(0, offset);
-        
-        // Count opening and closing div tags before this match
         const openDivs = (beforeMatch.match(/<div class="figure-grid">/g) || []).length;
         const closeDivs = (beforeMatch.match(/<\/div>/g) || []).length;
         
-        // If we're inside a figure-grid div, don't wrap again
         if (openDivs > closeDivs) {
           return match;
         }
@@ -54,6 +45,11 @@ const displayContent = computed(() => {
   return processed;
 });
 
+// Check if locale-specific content exists
+const hasContent = computed(() => {
+  return locale.value === "en" ? !!props.block.content_en : !!props.block.content;
+});
+
 const layoutClass = computed(() => {
   const layout = props.block.layout || "default";
   if (layout === "full-width") return "max-w-full";
@@ -64,6 +60,7 @@ const layoutClass = computed(() => {
 
 <template>
   <div 
+    v-if="hasContent"
     class="prose prose-lg max-w-none"
     :class="layoutClass"
   >
@@ -77,13 +74,12 @@ const layoutClass = computed(() => {
 <style scoped>
 .rich-text-content :deep(img) {
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   max-width: 100%;
   height: auto;
 }
 
 .rich-text-content :deep(figure) {
-  margin: 1.5rem 0;
+  margin: 16px 0;
 }
 
 .rich-text-content :deep(figure img) {
@@ -94,8 +90,8 @@ const layoutClass = computed(() => {
 .rich-text-content :deep(.figure-grid) {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+  gap: 16px;
+  margin: 16px 0;
 }
 
 .rich-text-content :deep(.figure-grid figure) {
@@ -128,7 +124,7 @@ const layoutClass = computed(() => {
 .rich-text-content :deep(ul),
 .rich-text-content :deep(ol) {
   list-style-type: disc;
-  padding-left: 1.5rem;
+  padding-left: 16px;
 }
 
 .rich-text-content :deep(ol) {
