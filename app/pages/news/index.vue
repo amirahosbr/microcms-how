@@ -4,14 +4,31 @@ const { t, locale } = useI18n();
 const localePath = useLocalePath();
 
 // Fetch news list from microCMS
-const { data: newsList, pending, error } = await useFetch<NewsListResponse>('/api/list', {
+const { data: newsList, pending, error, refresh } = await useFetch<NewsListResponse>('/api/list', {
   query: {
     endpoint: 'news',
     limit: '10',
     offset: '0',
     orders: '-publishedAt'
   },
-  default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 })
+  default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
+  key: `news-list-${locale.value}`,
+  server: true,
+});
+
+// Refresh data when navigating to this page to get latest changes
+// onMounted runs when component is first created
+onMounted(() => {
+  if (process.client) {
+    refresh();
+  }
+});
+
+// onActivated runs when component is activated (works with keep-alive)
+onActivated(() => {
+  if (process.client) {
+    refresh();
+  }
 });
 
 // Helper to get localized title

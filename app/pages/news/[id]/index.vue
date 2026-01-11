@@ -137,9 +137,9 @@ useSeoMeta({
       <!-- Content Blocks (Repeat Field) - body or contentBlocks -->
       <div v-if="contentBlocks && contentBlocks.length > 0" class="space-y-8 md:space-y-12">
         <!-- Debug: Show block count -->
-        <div class="mb-4 p-2 bg-blue-50 text-xs">
+        <!-- <div class="mb-4 p-2 bg-blue-50 text-xs">
           Rendering {{ contentBlocks.length }} content blocks
-        </div>
+        </div> -->
         
         <ContentBlockRenderer
           v-for="(block, index) in contentBlocks"

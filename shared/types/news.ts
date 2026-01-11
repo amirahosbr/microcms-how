@@ -11,9 +11,6 @@ import type { MicroCMSBaseFields, MicroCMSImage, MicroCMSListResponse } from "./
 // Content Block Types (Repeat Field)
 export type ProfileCardBlock = {
   fieldId: "cf_profileCard";
-  name?: string; // Optional - can be extracted from bio
-  role?: string; // Optional - can be extracted from bio
-  role_en?: string;
   bio: string;
   bio_en?: string;
   image?: MicroCMSImage;

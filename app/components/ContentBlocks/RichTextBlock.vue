@@ -63,6 +63,7 @@ const layoutClass = computed(() => {
 .rich-text-content :deep(ul),
 .rich-text-content :deep(ol) {
   list-style-type: disc;
+  padding-left: 1.5rem;
 }
 
 .rich-text-content :deep(ol) {
