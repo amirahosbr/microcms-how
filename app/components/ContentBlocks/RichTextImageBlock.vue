@@ -31,7 +31,7 @@ const hasContent = computed(() => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <!-- Image -->
       <div class="w-full" style="aspect-ratio: 453 / 302;">
-        <img
+        <NuxtImg
           :src="block.image.url"
           :alt="displayContent"
           width="453"

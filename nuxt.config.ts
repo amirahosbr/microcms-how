@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()]
   },
   css: ['~/assets/css/main.css'],
-  modules: ['@nuxtjs/i18n'],
+  modules: ['@nuxtjs/i18n', '@nuxt/image'],
   i18n: {
     locales: [
       { code: 'ja', iso: 'ja-JP', name: '日本語', file: 'ja.json' },
