@@ -2,6 +2,7 @@
 import type { ContentBlock } from "~~/shared/types/news";
 import ProfileCard from "./ProfileCard.vue";
 import RichTextBlock from "./RichTextBlock.vue";
+import RichTextImageBlock from "./RichTextImageBlock.vue";
 import ImageBlock from "./ImageBlock.vue";
 import ImageGalleryBlock from "./ImageGalleryBlock.vue";
 import LogoGroupBlock from "./LogoGroupBlock.vue";
@@ -23,6 +24,10 @@ const props = defineProps<Props>();
     />
     <RichTextBlock 
       v-else-if="props.block.fieldId === 'cf_richTextBlock'" 
+      :block="props.block as any" 
+    />
+    <RichTextImageBlock 
+      v-else-if="props.block.fieldId === 'cf_richTextImage'" 
       :block="props.block as any" 
     />
     <ImageBlock 

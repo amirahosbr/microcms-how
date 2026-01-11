@@ -25,6 +25,13 @@ export type RichTextBlock = {
   layout?: "default" | "full-width" | "narrow";
 };
 
+export type RichTextImageBlock = {
+  fieldId: "cf_richTextImage";
+  content: string;
+  content_en?: string;
+  image: MicroCMSImage;
+};
+
 export type ImageBlock = {
   fieldId: "cf_imageBlock";
   image: MicroCMSImage;
@@ -53,7 +60,7 @@ export type LogoGroupBlock = {
   }>;
 };
 
-export type ContentBlock = ProfileCardBlock | RichTextBlock | ImageBlock | ImageGalleryBlock | LogoGroupBlock;
+export type ContentBlock = ProfileCardBlock | RichTextBlock | RichTextImageBlock | ImageBlock | ImageGalleryBlock | LogoGroupBlock;
 
 // Category type
 export type NewsCategory = MicroCMSBaseFields & {
@@ -64,6 +71,8 @@ export type NewsCategory = MicroCMSBaseFields & {
 export type NewsItem = MicroCMSBaseFields & {
   title?: string;
   title_en?: string;
+  description?: string;
+  description_en?: string;
   category: NewsCategory | null;
   location?: unknown | null;
   image?: MicroCMSImage;

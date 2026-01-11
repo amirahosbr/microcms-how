@@ -57,11 +57,14 @@ const displayTitle = computed(() => {
   return newsDetail.value.title || newsDetail.value.title_en || "";
 });
 
-const displayDescription = computed(() => 
-  locale.value === "en"
-    ? (newsDetail.value?.title_en || newsDetail.value?.title || t("news.title"))
-    : (newsDetail.value?.title || newsDetail.value?.title_en || t("news.title"))
-);
+// Computed for localized description (no fallback - only show if locale-specific exists)
+const displayDescription = computed(() => {
+  if (!newsDetail.value) return "";
+  if (locale.value === "en") {
+    return newsDetail.value.description_en || "";
+  }
+  return newsDetail.value.description || "";
+});
 
 // Computed for content blocks
 const contentBlocks = computed(() => {
@@ -119,6 +122,11 @@ useSeoMeta({
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
           {{ displayTitle }}
         </h1>
+        
+        <!-- Description -->
+        <p v-if="displayDescription" class="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
+          {{ displayDescription }}
+        </p>
         
         <!-- Meta Info -->
         <div class="flex flex-wrap items-center gap-4 text-sm md:text-base text-gray-500 border-b border-gray-200 pb-6">
