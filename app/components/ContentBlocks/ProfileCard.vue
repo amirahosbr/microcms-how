@@ -8,33 +8,28 @@ type Props = {
 const props = defineProps<Props>();
 const { locale } = useI18n();
 
+// Get bio content - no fallback, only show if locale-specific content exists
 const displayBio = computed(() => {
-  const bioHtml = locale.value === "en"
-    ? (props.block.bio_en || props.block.bio || "")
-    : (props.block.bio || props.block.bio_en || "");
-  
+  const bioHtml = locale.value === "en" ? props.block.bio_en : props.block.bio;
   return bioHtml ? useSanitize().sanitizeHtml(bioHtml) : "";
 });
 
-// Get image position from API - follow API exactly, default to "left" if not provided
+// Extract position value from array or string format
+const extractPosition = (pos: "left" | "right" | ("left" | "right")[] | undefined): "left" | "right" | null => {
+  if (!pos) return null;
+  if (Array.isArray(pos) && pos.length > 0) {
+    const value = pos[0];
+    return value === "left" || value === "right" ? value : null;
+  }
+  return pos === "left" || pos === "right" ? pos : null;
+};
+
+// Get image position: imagePosition_en (EN) > imagePosition (default) > "left"
 const imagePosition = computed((): "left" | "right" => {
-  const position = props.block.imagePosition;
-  
-  // Handle array format from microCMS API (e.g., ["right"])
-  if (Array.isArray(position) && position.length > 0) {
-    const value = position[0];
-    if (value === "left" || value === "right") {
-      return value;
-    }
+  if (locale.value === "en" && props.block.imagePosition_en) {
+    return extractPosition(props.block.imagePosition_en) ?? "left";
   }
-  
-  // Handle string format
-  if (position === "left" || position === "right") {
-    return position;
-  }
-  
-  // Default to "left" if not specified in API
-  return "left";
+  return extractPosition(props.block.imagePosition) ?? "left";
 });
 
 const isImageRight = computed(() => imagePosition.value === "right");
