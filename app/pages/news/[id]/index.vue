@@ -116,7 +116,7 @@ useSeoMeta({
     </div>
 
     <!-- Article Content -->
-    <article v-else-if="newsDetail" class="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
+    <article v-else-if="newsDetail" class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
       <!-- Header -->
       <header class="mb-10 md:mb-12">
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">

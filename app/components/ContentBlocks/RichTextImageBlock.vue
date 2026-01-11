@@ -29,21 +29,23 @@ const hasContent = computed(() => {
     class="rich-text-image-block"
   >
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Image -->
+      <div class="w-full" style="aspect-ratio: 453 / 302;">
+        <img
+          :src="block.image.url"
+          :alt="displayContent"
+          width="453"
+          height="302"
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+
       <!-- Content -->
       <div class="prose prose-lg max-w-none">
         <div 
           class="rich-text-content"
           v-html="displayContent"
-        />
-      </div>
-      
-      <!-- Image -->
-      <div class="flex items-start h-full">
-        <img
-          :src="block.image.url"
-          :alt="displayContent"
-          class="w-full h-full object-cover"
-          loading="lazy"
         />
       </div>
     </div>
@@ -52,7 +54,7 @@ const hasContent = computed(() => {
 
 <style scoped>
 .rich-text-content :deep(p) {
-  line-height: 1.75;
+  line-height: 1.5;
   font-size: 1rem;
   color: rgb(17 24 39);
   margin-bottom: 1rem;
@@ -65,7 +67,7 @@ const hasContent = computed(() => {
 .rich-text-content :deep(ul),
 .rich-text-content :deep(ol) {
   list-style-type: disc;
-  padding-left: 16px;
+  padding-left: 40px;
   margin-bottom: 1rem;
 }
 
@@ -74,7 +76,7 @@ const hasContent = computed(() => {
 }
 
 .rich-text-content :deep(li) {
-  line-height: 1.75;
+  line-height: 1.5;
 }
 
 .rich-text-content :deep(strong) {

@@ -116,7 +116,7 @@ const layoutClass = computed(() => {
 }
 
 .rich-text-content :deep(p) {
-  line-height: 1.75;
+  line-height: 1.5;
   font-size: 1rem;
   color: rgb(17 24 39);
 }
@@ -132,7 +132,7 @@ const layoutClass = computed(() => {
 }
 
 .rich-text-content :deep(li) {
-  line-height: 1.75;
+  line-height: 1.5;
 }
 
 .rich-text-content :deep(li > p) {
