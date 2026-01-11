@@ -73,7 +73,6 @@ const layoutClass = computed(() => {
 
 <style scoped>
 .rich-text-content :deep(img) {
-  border-radius: 0.5rem;
   max-width: 100%;
   height: auto;
 }
@@ -124,7 +123,7 @@ const layoutClass = computed(() => {
 .rich-text-content :deep(ul),
 .rich-text-content :deep(ol) {
   list-style-type: disc;
-  padding-left: 16px;
+  padding-left: 40px;
 }
 
 .rich-text-content :deep(ol) {

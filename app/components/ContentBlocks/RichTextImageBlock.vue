@@ -28,7 +28,7 @@ const hasContent = computed(() => {
     v-if="hasContent && block.image"
     class="rich-text-image-block"
   >
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
       <!-- Image -->
       <div class="w-full" style="aspect-ratio: 453 / 302;">
         <NuxtImg
