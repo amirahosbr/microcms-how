@@ -38,12 +38,24 @@ if (!pending.value && !newsDetail.value && !error.value) {
   });
 }
 
-// Computed for localized title and description
-const displayTitle = computed(() => 
-  locale.value === "en" 
-    ? (newsDetail.value?.title_en || newsDetail.value?.title)
-    : (newsDetail.value?.title || newsDetail.value?.title_en)
-);
+// Redirect media category items to external URL (no detail page for media)
+watch([newsDetail, pending], ([detail, isLoading]) => {
+  if (!isLoading && detail) {
+    const isMedia = detail.category?.id === "media";
+    if (isMedia && detail.external_url) {
+      navigateTo(detail.external_url, { external: true });
+    }
+  }
+}, { immediate: true });
+
+// Computed for localized title and description (with fallback)
+const displayTitle = computed(() => {
+  if (!newsDetail.value) return "";
+  if (locale.value === "en") {
+    return newsDetail.value.title_en || newsDetail.value.title || "";
+  }
+  return newsDetail.value.title || newsDetail.value.title_en || "";
+});
 
 const displayDescription = computed(() => 
   locale.value === "en"

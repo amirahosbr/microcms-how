@@ -55,14 +55,21 @@ export type LogoGroupBlock = {
 
 export type ContentBlock = ProfileCardBlock | RichTextBlock | ImageBlock | ImageGalleryBlock | LogoGroupBlock;
 
+// Category type
+export type NewsCategory = MicroCMSBaseFields & {
+  name: string;
+};
+
 // News Item Type
 export type NewsItem = MicroCMSBaseFields & {
-  title: string;
+  title?: string;
   title_en?: string;
-  category: unknown | null;
+  category: NewsCategory | null;
   location?: unknown | null;
   image?: MicroCMSImage;
   external_url?: string;
+  publication?: string;
+  publication_en?: string;
   content?: string; // Legacy content field
   contentBlocks?: ContentBlock[] | null; // Legacy field name
   body?: ContentBlock[] | null; // New field name (repeat field)

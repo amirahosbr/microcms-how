@@ -31,11 +31,17 @@ onActivated(() => {
   }
 });
 
-// Helper to get localized title
+// Helper to get localized title with fallback
 const getLocalizedTitle = (item: { title?: string; title_en?: string }) => {
-  return locale.value === "en" 
-    ? (item.title_en || item.title || "")
-    : (item.title || item.title_en || "");
+  if (locale.value === "en") {
+    return item.title_en || item.title || "";
+  }
+  return item.title || item.title_en || "";
+};
+
+// Check if item is media category
+const isMediaCategory = (item: { category?: { id?: string } | null }) => {
+  return item.category?.id === "media";
 };
 </script>
 
@@ -65,37 +71,73 @@ const getLocalizedTitle = (item: { title?: string; title_en?: string }) => {
 
       <!-- List Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <NuxtLink
-          v-for="item in newsList.contents"
-          :key="item.id"
-          :to="localePath(`/news/${item.id}`)"
-          class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 block"
-        >
-          <!-- Image -->
-          <div v-if="item.image" class="w-full h-48 overflow-hidden bg-gray-200">
-            <img
-              :src="item.image.url"
-              :alt="getLocalizedTitle(item)"
-              class="w-full h-full object-cover"
-            />
-          </div>
-          <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center">
-            <span class="text-gray-400">No Image</span>
-          </div>
+        <template v-for="item in newsList.contents" :key="item.id">
+          <!-- Media category: external link -->
+          <a
+            v-if="isMediaCategory(item) && item.external_url"
+            :href="item.external_url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 block"
+          >
+            <!-- Image -->
+            <div v-if="item.image" class="w-full h-48 overflow-hidden bg-gray-200">
+              <img
+                :src="item.image.url"
+                :alt="getLocalizedTitle(item)"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-400">No Image</span>
+            </div>
 
-          <!-- Content -->
-          <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
-              {{ getLocalizedTitle(item) }}
-            </h2>
-            <time
-              :datetime="item.publishedAt"
-              class="text-xs text-gray-500"
-            >
-              {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
-            </time>
-          </div>
-        </NuxtLink>
+            <!-- Content -->
+            <div class="p-6">
+              <h2 class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+                {{ getLocalizedTitle(item) }}
+              </h2>
+              <time
+                :datetime="item.publishedAt"
+                class="text-xs text-gray-500"
+              >
+                {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
+              </time>
+            </div>
+          </a>
+
+          <!-- Non-media category: internal link to detail page -->
+          <NuxtLink
+            v-else
+            :to="localePath(`/news/${item.id}`)"
+            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 block"
+          >
+            <!-- Image -->
+            <div v-if="item.image" class="w-full h-48 overflow-hidden bg-gray-200">
+              <img
+                :src="item.image.url"
+                :alt="getLocalizedTitle(item)"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-400">No Image</span>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+              <h2 class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+                {{ getLocalizedTitle(item) }}
+              </h2>
+              <time
+                :datetime="item.publishedAt"
+                class="text-xs text-gray-500"
+              >
+                {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
+              </time>
+            </div>
+          </NuxtLink>
+        </template>
       </div>
     </div>
   </div>
