@@ -14,7 +14,7 @@ export type ProfileCardBlock = {
   bio: string;
   bio_en?: string;
   image?: MicroCMSImage;
-  layout?: "left" | "right"; // Image position
+  imagePosition?: "left" | "right" | ("left" | "right")[]; // Optional editorial override (can be array from microCMS)
 };
 
 export type RichTextBlock = {

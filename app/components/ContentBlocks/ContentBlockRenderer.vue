@@ -18,7 +18,8 @@ const props = defineProps<Props>();
   <div :key="`block-${props.index}`" class="content-block">
     <ProfileCard 
       v-if="props.block.fieldId === 'cf_profileCard'" 
-      :block="props.block as any" 
+      :block="props.block as any"
+      :index="props.index"
     />
     <RichTextBlock 
       v-else-if="props.block.fieldId === 'cf_richTextBlock'" 
