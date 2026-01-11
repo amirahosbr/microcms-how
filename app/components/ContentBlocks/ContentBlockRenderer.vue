@@ -4,6 +4,7 @@ import ProfileCard from "./ProfileCard.vue";
 import RichTextBlock from "./RichTextBlock.vue";
 import ImageBlock from "./ImageBlock.vue";
 import ImageGalleryBlock from "./ImageGalleryBlock.vue";
+import LogoGroupBlock from "./LogoGroupBlock.vue";
 
 type Props = {
   block: ContentBlock;
@@ -29,6 +30,10 @@ const props = defineProps<Props>();
     />
     <ImageGalleryBlock 
       v-else-if="props.block.fieldId === 'cf_imageGalleryBlock'" 
+      :block="props.block as any" 
+    />
+    <LogoGroupBlock 
+      v-else-if="props.block.fieldId === 'cf_logoGroup'" 
       :block="props.block as any" 
     />
   </div>

@@ -12,7 +12,46 @@ const displayContent = computed(() => {
   const content = locale.value === "en"
     ? (props.block.content_en || props.block.content)
     : (props.block.content || props.block.content_en);
-  return content ? useSanitize().sanitizeHtml(content) : "";
+  
+  if (!content) return "";
+  
+  const sanitized = useSanitize().sanitizeHtml(content);
+  
+  // Post-process HTML to wrap consecutive figures in a grid container
+  // Process all consecutive figure pairs using a loop to catch all pairs
+  let processed = sanitized;
+  let previousProcessed = '';
+  let iterations = 0;
+  const maxIterations = 10; // Safety limit
+  
+  // Keep processing until no more changes (to catch all pairs)
+  while (processed !== previousProcessed && iterations < maxIterations) {
+    previousProcessed = processed;
+    iterations++;
+    
+    // Match pairs of figures that are close together (separated by whitespace, br, or empty p tags)
+    // Only match if they're not already inside a figure-grid div
+    processed = processed.replace(
+      /(<figure[^>]*>[\s\S]*?<\/figure>)(\s*(?:<br\s*\/?>|<p>\s*<\/p>)?\s*)(<figure[^>]*>[\s\S]*?<\/figure>)/gi,
+      (match, fig1, space, fig2, offset, string) => {
+        // Check if this match is already inside a figure-grid div
+        const beforeMatch = string.substring(0, offset);
+        
+        // Count opening and closing div tags before this match
+        const openDivs = (beforeMatch.match(/<div class="figure-grid">/g) || []).length;
+        const closeDivs = (beforeMatch.match(/<\/div>/g) || []).length;
+        
+        // If we're inside a figure-grid div, don't wrap again
+        if (openDivs > closeDivs) {
+          return match;
+        }
+        
+        return `<div class="figure-grid">${fig1}${space}${fig2}</div>`;
+      }
+    );
+  }
+  
+  return processed;
 });
 
 const layoutClass = computed(() => {
@@ -43,8 +82,34 @@ const layoutClass = computed(() => {
   height: auto;
 }
 
+.rich-text-content :deep(figure) {
+  margin: 1.5rem 0;
+}
+
 .rich-text-content :deep(figure img) {
   width: 100%;
+}
+
+/* 2-column grid for consecutive figures */
+.rich-text-content :deep(.figure-grid) {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.rich-text-content :deep(.figure-grid figure) {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.rich-text-content :deep(.figure-grid figure img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .rich-text-content :deep(figcaption) {

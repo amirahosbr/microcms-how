@@ -42,7 +42,17 @@ export type ImageGalleryBlock = {
   columns?: 2 | 3 | 4;
 };
 
-export type ContentBlock = ProfileCardBlock | RichTextBlock | ImageBlock | ImageGalleryBlock;
+export type LogoGroupBlock = {
+  fieldId: "cf_logoGroup";
+  heading: string;
+  heading_en?: string;
+  logos: Array<{
+    fieldId: "logos";
+    logo: MicroCMSImage;
+  }>;
+};
+
+export type ContentBlock = ProfileCardBlock | RichTextBlock | ImageBlock | ImageGalleryBlock | LogoGroupBlock;
 
 // News Item Type
 export type NewsItem = MicroCMSBaseFields & {
