@@ -15,13 +15,17 @@ export default defineNuxtConfig({
       { code: 'ja', iso: 'ja-JP', name: '日本語', file: 'ja.json' },
       { code: 'en', iso: 'en-US', name: 'English', file: 'en.json' }
     ],
-    defaultLocale: 'ja',
+    defaultLocale: 'en',
     strategy: 'prefix_except_default',
     langDir: 'locales',
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',
-      redirectOn: 'root'
+      redirectOn: 'root',
+      alwaysRedirect: false
+    },
+    compilation: {
+      strictMessage: false
     }
   },
   typescript: {
@@ -30,8 +34,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      siteName: "Orbital Collaborations",
-      siteDomain: "https://www.orbitalcollab.co.jp",
+      siteName: "NGETEST - microCMS how",
+      siteDomain: "",
     },
     microcms: {
       serviceDomain: process.env.MICROCMS_SERVICE_DOMAIN,

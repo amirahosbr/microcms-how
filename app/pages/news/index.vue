@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { NewsListResponse } from "~~/shared/types/news";
+const { t, locale } = useI18n();
+const localePath = useLocalePath();
 
 // Fetch news list from microCMS
 const { data: newsList, pending, error } = await useFetch<NewsListResponse>('/api/list', {
@@ -10,13 +12,20 @@ const { data: newsList, pending, error } = await useFetch<NewsListResponse>('/ap
     orders: '-publishedAt'
   },
   default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 })
-})
+});
+
+// Helper to get localized title
+const getLocalizedTitle = (item: { title?: string; title_en?: string }) => {
+  return locale.value === "en" 
+    ? (item.title_en || item.title || "")
+    : (item.title || item.title_en || "");
+};
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 py-12 px-4">
     <div class="max-w-7xl mx-auto">
-      <h1 class="text-4xl font-bold text-gray-900 mb-8">News</h1>
+      <h1 class="text-4xl font-bold text-gray-900 mb-8">{{ t("news.title") }}</h1>
 
       <!-- Loading State -->
       <div v-if="pending" class="flex items-center justify-center py-20">
@@ -24,13 +33,17 @@ const { data: newsList, pending, error } = await useFetch<NewsListResponse>('/ap
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="flex items-center justify-center py-20">
-        <p class="text-red-600">Failed to load items.</p>
+      <div v-else-if="error" class="flex flex-col items-center justify-center py-20">
+        <p class="text-red-600 text-lg mb-2">Failed to load items.</p>
+        <p class="text-sm text-gray-500">{{ error.message || 'Unknown error occurred' }}</p>
+        <p class="text-xs text-gray-400 mt-4">Check console for details</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="!newsList?.contents?.length" class="flex items-center justify-center py-20">
-        <p class="text-gray-500">No news articles found.</p>
+      <div v-else-if="!newsList?.contents?.length" class="flex flex-col items-center justify-center py-20">
+        <p class="text-gray-500 text-lg mb-2">No news articles found.</p>
+        <p class="text-sm text-gray-400">Total count: {{ newsList?.totalCount || 0 }}</p>
+        <p class="text-xs text-gray-400 mt-4">Make sure your microCMS environment variables are set correctly</p>
       </div>
 
       <!-- List Grid -->
@@ -38,14 +51,14 @@ const { data: newsList, pending, error } = await useFetch<NewsListResponse>('/ap
         <NuxtLink
           v-for="item in newsList.contents"
           :key="item.id"
-          :to="`/news/${item.id}`"
+          :to="localePath(`/news/${item.id}`)"
           class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 block"
         >
           <!-- Image -->
           <div v-if="item.image" class="w-full h-48 overflow-hidden bg-gray-200">
             <img
               :src="item.image.url"
-              :alt="item.title"
+              :alt="getLocalizedTitle(item)"
               class="w-full h-full object-cover"
             />
           </div>
@@ -56,16 +69,13 @@ const { data: newsList, pending, error } = await useFetch<NewsListResponse>('/ap
           <!-- Content -->
           <div class="p-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
-              {{ item.title }}
+              {{ getLocalizedTitle(item) }}
             </h2>
-            <p v-if="item.title_en" class="text-sm text-gray-600 mb-4 line-clamp-2">
-              {{ item.title_en }}
-            </p>
             <time
               :datetime="item.publishedAt"
               class="text-xs text-gray-500"
             >
-              {{ new Date(item.publishedAt).toLocaleDateString() }}
+              {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
             </time>
           </div>
         </NuxtLink>
