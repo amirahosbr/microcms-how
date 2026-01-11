@@ -13,9 +13,23 @@ import { createClient } from "microcms-js-sdk";
 // Create Client
 export const useMicroCMSClient = () => {
 	const config = useRuntimeConfig();
+	const serviceDomain = config.microcms.serviceDomain;
+	const apiKey = config.microcms.apiKey;
+	
+	// Debug: Log if credentials are missing (only in dev)
+	if (import.meta.dev && (!serviceDomain || !apiKey)) {
+		console.warn("[microCMS] Missing credentials:", {
+			hasServiceDomain: !!serviceDomain,
+			hasApiKey: !!apiKey,
+		});
+		console.warn("[microCMS] Make sure you have .env file with:");
+		console.warn("  MICROCMS_SERVICE_DOMAIN=your-service-domain");
+		console.warn("  MICROCMS_API_KEY=your-api-key");
+	}
+	
 	return createClient({
-		serviceDomain: config.microcms.serviceDomain,
-		apiKey: config.microcms.apiKey,
+		serviceDomain: serviceDomain || '',
+		apiKey: apiKey || '',
 	});
 };
 

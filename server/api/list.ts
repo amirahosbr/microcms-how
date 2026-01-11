@@ -27,9 +27,11 @@ export const parseListQuery = (event: H3Event): ListApiQuery => {
 	};
 };
 
-// Default fields to include nested category and location data
+// Default fields - only request fields that exist in the schema
+// If a field doesn't exist, microCMS will return an error, so we request only what we know exists
+// Support both body (new) and contentBlocks (legacy) field names
 const DEFAULT_FIELDS =
-	"id,createdAt,updatedAt,publishedAt,revisedAt,title,title_en,category.id,category.title,category.title_en,category.createdAt,category.updatedAt,category.publishedAt,category.revisedAt,location.id,location.title,location.title_en,location.createdAt,location.updatedAt,location.publishedAt,location.revisedAt,image,content,external_url,publication,publication_en";
+	"id,createdAt,updatedAt,publishedAt,revisedAt,title,title_en,category,location,image,content,external_url,body,contentBlocks";
 
 // Get List
 export default cachedEventHandler(
@@ -47,8 +49,15 @@ export default cachedEventHandler(
 			// Set Queries
 			const baseQueries: MicroCMSQueries = {};
 
-			// Use provided fields or default fields that include nested data
-			baseQueries.fields = fields ?? DEFAULT_FIELDS;
+			// Use provided fields or default fields
+			// If no fields specified, don't set it - let microCMS return all fields
+			if (fields) {
+				baseQueries.fields = fields;
+			} else {
+				// Only set default fields if we want to limit what we get
+				// For now, let's try without fields to get everything
+				// baseQueries.fields = DEFAULT_FIELDS;
+			}
 
 			if (filters) baseQueries.filters = filters;
 			if (q) baseQueries.q = q;
@@ -83,16 +92,26 @@ export default cachedEventHandler(
 				});
 			};
 
-			return limit === "all" ? await fetchAll() : await fetchPaged();
+			const result = limit === "all" ? await fetchAll() : await fetchPaged();
+			console.log("[API] Successfully fetched list:", {
+				endpoint,
+				totalCount: result.totalCount,
+				contentsLength: result.contents.length,
+			});
+			return result;
 		} catch (error) {
 			console.error("[API] Failed to fetch list:", error);
-			// Return empty data instead of throwing error to prevent 404 on page refresh
-			return {
-				contents: [],
-				totalCount: 0,
-				limit: 0,
-				offset: 0,
-			};
+			// Log more details for debugging
+			if (error instanceof Error) {
+				console.error("[API] Error message:", error.message);
+				console.error("[API] Error stack:", error.stack);
+			}
+			// Re-throw the error so we can see it in the frontend
+			throw createError({
+				statusCode: 500,
+				message: error instanceof Error ? error.message : "Failed to fetch list",
+				data: error,
+			});
 		}
 	}),
 	{
