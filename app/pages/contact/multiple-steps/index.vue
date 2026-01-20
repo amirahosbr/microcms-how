@@ -317,17 +317,21 @@ const showOtherQualification = computed(() =>
                 </Field>
 
                 <!-- Submit Button -->
-                <button type="submit"
-                    class="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                    Submit
+                <button type="submit" :disabled="!formValues.privacyAgreed" :class="[
+                    'w-full md:w-auto px-6 py-3 rounded-lg font-medium',
+                    formValues.privacyAgreed ? 'text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ]">
+                    {{ formValues.privacyAgreed ? 'Submit' : 'Please agree to the privacy policy' }}
                 </button>
             </Form>
 
             <!-- Confirm Step -->
             <div v-if="step === 'confirm'" class="space-y-6">
-                <div  class="text-sm text-red-500">
+                <div class="text-sm text-red-500">
                     Submission not yet completed.<br />
-                    Please check the information you have entered and press the "Information Confirmend and Submit" button at the bottom of the page.
+                    Please check the information you have entered and press the "Information Confirmend and Submit"
+                    button at the
+                    bottom of the page.
                 </div>
                 <div class="p-4 bg-gray-50 rounded-lg space-y-4">
                     <div>
@@ -348,7 +352,8 @@ const showOtherQualification = computed(() =>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="text-sm font-medium text-gray-700">Date of Birth</div>
-                        <div class="text-base text-gray-900">{{ formValues.birthYear }}年{{ formValues.birthMonth }}月{{ formValues.birthDay }}日</div>
+                        <div class="text-base text-gray-900">{{ formValues.birthYear }}年{{ formValues.birthMonth }}月{{
+                            formValues.birthDay }}日</div>
                     </div>
                     <div>
                         <div class="text-sm font-medium text-gray-700">Qualifications</div>
