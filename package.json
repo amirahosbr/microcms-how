@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --port 3001",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxtjs/i18n": "^10.2.1",
+    "@nuxtjs/seo": "3.4.0",
     "@vee-validate/zod": "^4.15.1",
     "microcms-js-sdk": "^2.5.0",
     "nuxt": "^4.0.0",

@@ -7,40 +7,21 @@
  * @module HeaderComponent
  */
 
-const { locale, locales } = useI18n();
-const switchLocalePath = useSwitchLocalePath();
-const localePath = useLocalePath();
-const config = useRuntimeConfig();
+const { locale, locales } = useI18n()
+const switchLocalePath = useSwitchLocalePath()
+const localePath = useLocalePath()
+const config = useRuntimeConfig()
+const { nav: navItems, getPath: getItemPath, getName: getItemName, getChildren: getItemChildren, hasChildren } = useNav()
 
-const navData = await import("../../data/nav.json") as { default: { nav: unknown[] } };
-const navItems = navData.default.nav;
-
-const isOpen = ref<Record<number, boolean>>({});
+const isOpen = ref<Record<number, boolean>>({})
 
 const openDropdown = (index: number) => {
-  isOpen.value = { ...isOpen.value, [index]: true };
-};
+  isOpen.value = { ...isOpen.value, [index]: true }
+}
 
 const closeDropdown = (index: number) => {
-  isOpen.value = { ...isOpen.value, [index]: false };
-};
-
-const getItemPath = (item: unknown): string => {
-  return (item as { path?: string })?.path ?? "";
-};
-
-const getItemName = (item: unknown): string => {
-  return (item as { name?: string })?.name ?? "";
-};
-
-const getItemChildren = (item: unknown): unknown[] => {
-  return (item as { children?: unknown[] })?.children ?? [];
-};
-
-const hasChildren = (item: unknown): boolean => {
-  const children = getItemChildren(item);
-  return Array.isArray(children) && children.length > 0;
-};
+  isOpen.value = { ...isOpen.value, [index]: false }
+}
 </script>
 
 <template>

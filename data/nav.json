@@ -21,6 +21,10 @@
           "path": "/contact/multiple-steps"
         }
       ]
+    },
+    {
+      "name": "About",
+      "path": "/about"
     }
   ]
 }
