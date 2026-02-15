@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   site: {
-    url: 'https://example.com',
+    url: 'https://microcms-how.vercel.app',
     name: 'HOW TO?',
   },
   vite: {
