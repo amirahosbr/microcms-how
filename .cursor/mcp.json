@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "microcms-ngetest-anv": {
+      "command": "npx",
+      "args": ["-y", "microcms-mcp-server@latest"],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  }
+}
