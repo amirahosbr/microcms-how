@@ -16,28 +16,22 @@ const localePath = useLocalePath();
 const { isNewArticle } = useArticleHelpers();
 const { sanitizeHtml } = useSanitize();
 
-// Fetch News List (for "Latest" section)
-const { data: newsList, pending: newsPending } = await useFetch<{ contents: unknown[] }>(
-	"/api/list",
-	{
-		query: {
-			endpoint: "news",
-			limit: "3",
-			orders: "-publishedAt",
-		},
-		default: () => ({ contents: [] }),
-	},
-);
-
-// Fetch News Detail (draftKey from URL for microCMS preview)
-const { data: newsDetail, pending: newsDetailPending } = useFetch<NewsDetail>("/api/article", {
-	query: computed(() => ({
+// Fetch News List
+const { data: newsList, pending: newsPending } = await useFetch("/api/list", {
+	query: {
 		endpoint: "news",
-		contentId: Array.isArray(route.params.id) ? route.params.id[0] : route.params.id,
+		limit: "3",
+		orders: "-publishedAt",
+	},
+});
+
+// Fetch News Detail
+const { data: newsDetail, pending: newsDetailPending } = useFetch<NewsDetail>("/api/article", {
+	query: {
+		endpoint: "news",
+		contentId: route.params.id,
 		draftKey: route.query.draftKey,
-	})),
-	key: `draft-${route.params.id}-${route.query.draftKey}-${locale}`,
-	default: () => undefined,
+	},
 });
 
 const isNew = computed(() =>
@@ -191,7 +185,7 @@ useSeoMeta({
 							class="aspect-video bg-gray-100"
 						>
 							<NuxtImg
-								:src="(item as { image: { url: string } }).image.url"
+								:src="(item as unknown as { image?: { url: string } }).image!.url"
 								:alt="(item as { title?: string }).title ?? ''"
 								class="w-full h-full object-cover"
 							/>
