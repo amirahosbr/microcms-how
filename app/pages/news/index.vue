@@ -3,13 +3,18 @@ import type { NewsListResponse } from "~~/shared/types/news";
 const { t, locale } = useI18n();
 const localePath = useLocalePath();
 
+// Get current date in ISO format for filtering
+const now = new Date().toISOString();
+
 // Fetch news list from microCMS
 const { data: newsList, pending, error, refresh } = await useFetch<NewsListResponse>('/api/list', {
   query: {
     endpoint: 'news',
     limit: '10',
     offset: '0',
-    orders: '-publishedAt'
+    orders: '-publishedAt',
+    // Only fetch articles published in the past (excludes drafts and scheduled posts)
+    filters: `publishedAt[less_than]${now}`
   },
   default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
   key: `news-list-${locale.value}`,

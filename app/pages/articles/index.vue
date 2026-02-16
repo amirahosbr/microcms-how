@@ -9,6 +9,9 @@ watch(() => route.fullPath, () => {
 	if (process.client) refresh();
 });
 
+// Get current date in ISO format for filtering
+const now = new Date().toISOString();
+
 const { data: articleList, pending, error, refresh } = await useFetch<NewsListResponse>(
 	"/api/article",
 	{
@@ -17,6 +20,8 @@ const { data: articleList, pending, error, refresh } = await useFetch<NewsListRe
 			limit: "10",
 			offset: "0",
 			orders: "-publishedAt",
+			// Only fetch articles published in the past (excludes drafts and scheduled posts)
+			filters: `publishedAt[less_than]${now}`,
 		},
 		default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
 		key: `articles-list-${locale.value}`,
