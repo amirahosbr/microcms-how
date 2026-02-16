@@ -4,7 +4,8 @@
       "name": "News",
       "path": "/news",
       "children": [
-        { "name": "News No Stale", "path": "/news-no-stale" }
+        { "name": "News No Stale", "path": "/news-no-stale" },
+        { "name": "News Cached (no webhook)", "path": "/news-cached" }
       ]
     },
     { "name": "Articles", "path": "/articles" },
