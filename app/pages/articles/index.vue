@@ -4,7 +4,7 @@ import type { NewsListResponse } from "~~/shared/types/news";
 const { locale } = useI18n();
 
 const { data: articleList, pending, error } = await useFetch<NewsListResponse>(
-	"/api/list",
+	"/api/article",
 	{
 		query: {
 			endpoint: "news",
