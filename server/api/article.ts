@@ -11,6 +11,14 @@ import type { H3Event } from "h3";
 import type { ArticleApiQuery } from "~~/shared/types/microCMS";
 import { useMicroCMSClient } from "~~/shared/utils/microcms";
 
+const serializeResponse = (data: unknown): unknown => {
+	try {
+		return JSON.parse(JSON.stringify(data));
+	} catch {
+		return data;
+	}
+};
+
 // Parse Query
 export const parseDetailQuery = (event: H3Event): ArticleApiQuery => {
 	const url = getRequestURL(event);
@@ -63,7 +71,7 @@ export default cachedEventHandler(
 				queries,
 			});
 
-			return detail;
+			return serializeResponse(detail);
 		} catch (error) {
 			console.error("[API] Failed to fetch article:", error);
 			throw createError({
@@ -73,6 +81,12 @@ export default cachedEventHandler(
 		}
 	}),
 	{
-		maxAge: 60,
+		// Reduce microCMS data transfer: cache 1h, serve stale 1h while revalidating
+		maxAge: 60 * 60,
+		staleMaxAge: 60 * 60,
+		getKey: (event) => {
+			const url = getRequestURL(event);
+			return url.pathname + url.search;
+		},
 	},
 );

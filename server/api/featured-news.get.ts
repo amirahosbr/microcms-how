@@ -52,5 +52,9 @@ export default cachedEventHandler(
 			return { article: null, source: null };
 		}
 	}),
-	{ maxAge: 60 }
+	{
+		maxAge: 60 * 60,
+		staleMaxAge: 60 * 60,
+		getKey: () => "/api/featured-news",
+	},
 );

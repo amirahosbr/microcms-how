@@ -27,12 +27,6 @@ export const parseListQuery = (event: H3Event): ListApiQuery => {
 	};
 };
 
-// Default fields - only request fields that exist in the schema
-// If a field doesn't exist, microCMS will return an error, so we request only what we know exists
-// Support both body (new) and contentBlocks (legacy) field names
-const DEFAULT_FIELDS =
-	"id,createdAt,updatedAt,publishedAt,revisedAt,title,title_en,category,location,image,content,external_url,body,contentBlocks";
-
 // Get List
 export default cachedEventHandler(
 	eventHandler(async (event) => {
@@ -115,6 +109,12 @@ export default cachedEventHandler(
 		}
 	}),
 	{
-		maxAge: 60,
+		// Reduce microCMS data transfer: cache 1h, serve stale 1h while revalidating
+		maxAge: 60 * 60,
+		staleMaxAge: 60 * 60,
+		getKey: (event) => {
+			const url = getRequestURL(event);
+			return url.pathname + url.search;
+		},
 	},
 );
