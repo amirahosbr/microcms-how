@@ -1,0 +1,16 @@
+# Create Issue Branch app config
+# https://github.com/robvanderleek/create-issue-branch
+
+# Create branch as soon as an issue is opened (not when assigned)
+mode: immediate
+
+# Branch name: issue-<number>-<title-slug> (e.g. issue-42-fix-draft-page)
+branchName: full
+gitSafeReplacementChar: "-"
+
+# Open a draft PR and link it to the issue
+openDraftPR: true
+autoLinkIssue: true
+
+# Optional: close the issue when the PR is merged
+# autoCloseIssue: true

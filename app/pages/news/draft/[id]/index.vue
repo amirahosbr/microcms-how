@@ -78,7 +78,7 @@ useSeoMeta({
 			<div
 				class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800"
 			>
-				【プレビュー】この記事は下書きです。microCMS のプレビュー用 URL（draftKey 付き）で表示しています。
+				[Preview] This is a draft. You are viewing it via the microCMS preview URL (with draftKey).
 			</div>
 
 			<div v-if="newsDetailPending" class="flex justify-center py-20">
