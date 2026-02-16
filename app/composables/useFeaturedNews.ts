@@ -14,6 +14,7 @@ export function useFeaturedNews() {
 	const { data, pending, error, refresh } = useFetch<FeaturedNewsResponse>(
 		"/api/featured-news",
 		{
+			getCachedData: () => undefined,
 			default: () => ({ article: null, source: null }),
 		}
 	);

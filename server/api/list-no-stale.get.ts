@@ -6,7 +6,6 @@
  */
 
 import type { MicroCMSListResponse, MicroCMSQueries } from "microcms-js-sdk";
-import type { H3Event } from "h3";
 import { parseListQuery } from "./list";
 import { useMicroCMSClient } from "~~/shared/utils/microcms";
 
@@ -64,8 +63,9 @@ export default cachedEventHandler(
 		}
 	}),
 	{
-		// No stale: only maxAge. After expiry every request hits microCMS.
+		// No stale: maxAge only; swr: false so after expiry we never serve stale, every request hits microCMS.
 		maxAge: 60 * 60,
+		swr: false,
 		getKey: (event) => {
 			const url = getRequestURL(event);
 			return url.pathname + url.search;

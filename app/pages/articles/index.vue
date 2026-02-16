@@ -1,18 +1,56 @@
 <script setup lang="ts">
 import type { NewsListResponse } from "~~/shared/types/news";
 
-const { data: articleList, pending, error } = await useFetch<NewsListResponse>(
-	"/api/list",
+const { locale } = useI18n();
+const route = useRoute();
+
+// Prefetch featured news so the modal has data as soon as it mounts (avoids delay from client-only fetch)
+useFeaturedNews();
+
+// Watch for route changes and refresh data
+watch(() => route.fullPath, () => {
+	if (process.client) refresh();
+});
+
+// Get current date in ISO format for filtering
+const now = new Date().toISOString();
+
+const { data: articleList, pending, error, refresh } = await useFetch<NewsListResponse>(
+	"/api/article",
 	{
 		query: {
 			endpoint: "news",
 			limit: "10",
 			offset: "0",
 			orders: "-publishedAt",
+			// Only fetch articles published in the past (excludes drafts and scheduled posts)
+			filters: `publishedAt[less_than]${now}`,
 		},
 		default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
+		key: `articles-list-${locale.value}`,
+		server: true,
+		// Disable caching - always fetch fresh data
+		getCachedData: () => undefined,
 	}
 );
+
+onMounted(() => {
+	if (process.client) refresh();
+});
+onActivated(() => {
+	if (process.client) refresh();
+});
+
+const getCategoryLabels = (item: { category?: unknown | unknown[] | null }) => {
+	const cat = item.category;
+	if (!cat) return [];
+	const items = Array.isArray(cat) ? cat : [cat];
+	return items.map((c: unknown) =>
+		locale.value === "en"
+			? (c as { title_en?: string; title?: string }).title_en ?? (c as { title?: string }).title ?? ""
+			: (c as { title?: string; title_en?: string }).title ?? (c as { title_en?: string }).title_en ?? ""
+	);
+};
 </script>
 
 <template>
@@ -75,20 +113,29 @@ const { data: articleList, pending, error } = await useFetch<NewsListResponse>(
 						<h2
 							class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2"
 						>
-							{{ item.title }}
+							{{ item.title_en }}
 						</h2>
 						<p
-							v-if="item.title_en"
+							v-if="item.title"
 							class="text-sm text-gray-600 mb-4 line-clamp-2"
 						>
-							{{ item.title_en }}
+							{{ item.title }}
 						</p>
 						<time
 							:datetime="item.publishedAt"
 							class="text-xs text-gray-500"
 						>
-							{{ new Date(item.publishedAt).toLocaleDateString() }}
+							{{ new Date(item.publishedAt).toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" }) }}
 						</time>
+						<div v-if="getCategoryLabels(item).length" class="mt-2 flex flex-wrap gap-2">
+							<span
+								v-for="(label, i) in getCategoryLabels(item)"
+								:key="i"
+								class="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+							>
+								{{ label }}
+							</span>
+						</div>
 					</div>
 				</NuxtLink>
 			</div>

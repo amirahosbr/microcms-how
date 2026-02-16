@@ -1,0 +1,21 @@
+# When a new issue is opened, create a branch and a draft PR linked to it.
+# Branch name: issue-<number>-<title-slug> (e.g. issue-42-fix-draft-page)
+# Requires: repo Settings → Actions → General → Workflow permissions: Read and write
+
+name: Create branch and PR from issue
+
+on:
+  issues:
+    types: [opened]
+  # Optional: also run when an issue is assigned (use "auto" mode in issue-branch.yml instead)
+  # issues:
+  #   types: [opened, assigned]
+
+jobs:
+  create_issue_branch_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue Branch
+        uses: robvanderleek/create-issue-branch@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

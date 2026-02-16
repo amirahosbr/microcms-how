@@ -48,6 +48,8 @@ const contentBlocks = computed(() => {
 	return (body ?? []) as ContentBlock[];
 });
 
+const hasDraftKey = computed(() => Boolean(route.query.draftKey));
+
 const displayTitle = computed(() => {
 	const d = newsDetail.value;
 	if (!d) return "";
@@ -78,10 +80,17 @@ useSeoMeta({
 			<div
 				class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800"
 			>
-				【プレビュー】この記事は下書きです。microCMS のプレビュー用 URL（draftKey 付き）で表示しています。
+				[Preview] This is a draft. You are viewing it via the microCMS preview URL (with draftKey).
 			</div>
 
-			<div v-if="newsDetailPending" class="flex justify-center py-20">
+			<div v-if="!hasDraftKey" class="py-20 text-center text-gray-600">
+				<p>{{ t("news.notFound") }}</p>
+				<p class="mt-2 text-sm">draftKey を付けた URL でアクセスしてください（microCMS のプレビューリンク）。</p>
+				<NuxtLink :to="localePath('/news')" class="mt-4 inline-block text-blue-600 underline">
+					{{ t("news.backToNews") }}
+				</NuxtLink>
+			</div>
+			<div v-else-if="newsDetailPending" class="flex justify-center py-20">
 				<div class="w-8 h-8 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
 			</div>
 			<template v-else-if="newsDetail">
@@ -153,7 +162,6 @@ useSeoMeta({
 
 			<div v-else class="py-20 text-center text-gray-600">
 				<p>{{ t("news.notFound") }}</p>
-				<p class="mt-2 text-sm">draftKey を付けた URL でアクセスしてください（microCMS のプレビューリンク）。</p>
 				<NuxtLink :to="localePath('/news')" class="mt-4 inline-block text-blue-600 underline">
 					{{ t("news.backToNews") }}
 				</NuxtLink>

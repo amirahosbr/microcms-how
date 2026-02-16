@@ -62,9 +62,11 @@ export type LogoGroupBlock = {
 
 export type ContentBlock = ProfileCardBlock | RichTextBlock | RichTextImageBlock | ImageBlock | ImageGalleryBlock | LogoGroupBlock;
 
-// Category type
+// Category type (API returns title, title_en; name is fallback)
 export type NewsCategory = MicroCMSBaseFields & {
-  name: string;
+  name?: string;
+  title?: string;
+  title_en?: string;
 };
 
 // News Item Type

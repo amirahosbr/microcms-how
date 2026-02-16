@@ -3,17 +3,32 @@ import type { NewsListResponse } from "~~/shared/types/news";
 const { t, locale } = useI18n();
 const localePath = useLocalePath();
 
+// Get current date in ISO format for filtering
+const now = new Date().toISOString();
+
 // Fetch news list from microCMS
 const { data: newsList, pending, error, refresh } = await useFetch<NewsListResponse>('/api/list', {
   query: {
     endpoint: 'news',
     limit: '10',
     offset: '0',
-    orders: '-publishedAt'
+    orders: '-publishedAt',
+    // Only fetch articles published in the past (excludes drafts and scheduled posts)
+    filters: `publishedAt[less_than]${now}`
   },
   default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
   key: `news-list-${locale.value}`,
   server: true,
+  // Disable caching - always fetch fresh data
+  getCachedData: () => undefined,
+});
+
+// Watch for route changes and refresh data
+const route = useRoute();
+watch(() => route.fullPath, () => {
+  if (process.client) {
+    refresh();
+  }
 });
 
 // Refresh data when navigating to this page to get latest changes
@@ -42,6 +57,18 @@ const getLocalizedTitle = (item: { title?: string; title_en?: string }) => {
 // Check if item is media category
 const isMediaCategory = (item: { category?: { id?: string } | null }) => {
   return item.category?.id === "media";
+};
+
+// Category label(s) for list (single or array; title/title_en)
+const getCategoryLabels = (item: { category?: unknown | unknown[] | null }) => {
+  const cat = item.category;
+  if (!cat) return [];
+  const items = Array.isArray(cat) ? cat : [cat];
+  return items.map((c: unknown) =>
+    locale.value === "en"
+      ? (c as { title_en?: string; title?: string }).title_en ?? (c as { title?: string }).title ?? ""
+      : (c as { title?: string; title_en?: string }).title ?? (c as { title_en?: string }).title_en ?? ""
+  );
 };
 </script>
 
@@ -103,6 +130,15 @@ const isMediaCategory = (item: { category?: { id?: string } | null }) => {
               >
                 {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
               </time>
+              <div v-if="getCategoryLabels(item).length" class="mt-2 flex flex-wrap gap-2">
+                <span
+                  v-for="(label, i) in getCategoryLabels(item)"
+                  :key="i"
+                  class="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+                >
+                  {{ label }}
+                </span>
+              </div>
             </div>
           </a>
 
@@ -135,6 +171,15 @@ const isMediaCategory = (item: { category?: { id?: string } | null }) => {
               >
                 {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
               </time>
+              <div v-if="getCategoryLabels(item).length" class="mt-2 flex flex-wrap gap-2">
+                <span
+                  v-for="(label, i) in getCategoryLabels(item)"
+                  :key="i"
+                  class="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+                >
+                  {{ label }}
+                </span>
+              </div>
             </div>
           </NuxtLink>
         </template>

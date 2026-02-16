@@ -1,19 +1,20 @@
 <script setup lang="ts">
+/**
+ * Featured news modal. Data is prefetched on the articles page so this composable
+ * reuses the same useFetch state and the modal can show without waiting for a new request.
+ */
 const { article, hasArticle, pending, source } = useFeaturedNews();
 
 const isOpen = ref(false);
 
-// Persist dismissal for the session
-const isDismissed = useState("featuredNewsDismissed", () => false);
-
 // Modal only renders on articles page, so no route check needed
 const showModal = computed(
-	() => hasArticle.value && !isDismissed.value && isOpen.value
+	() => hasArticle.value && isOpen.value
 );
 
 // Open modal when article is loaded (immediate for SSR/hydration)
 watch(hasArticle, (v) => {
-	if (v && !isDismissed.value) isOpen.value = true;
+	if (v) isOpen.value = true;
 }, { immediate: true });
 
 // Article shape from microCMS
@@ -78,7 +79,7 @@ const displayTitle = computed(() => titleEn.value ?? title.value ?? "");
 					<button
 						type="button"
 						class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-						@click="isDismissed = true; isOpen = false"
+						@click="isOpen = false"
 					>
 						Dismiss
 					</button>

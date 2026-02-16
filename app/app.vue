@@ -1,6 +1,6 @@
 <template>
   <div>
     <Header />
-    <NuxtPage />
+    <NuxtPage :keepalive="{ max: 10 }" />
   </div>
 </template>

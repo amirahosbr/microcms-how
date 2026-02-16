@@ -18,7 +18,7 @@ const articleId = computed(() => {
 });
 
 // Fetch news detail from microCMS
-const { data: newsDetail, pending, error } = await useFetch<NewsDetail>(
+const { data: newsDetail, pending, error, refresh } = await useFetch<NewsDetail>(
   "/api/article",
   {
     query: {
@@ -27,8 +27,22 @@ const { data: newsDetail, pending, error } = await useFetch<NewsDetail>(
     },
     default: () => undefined,
     key: `article-${articleId.value}-${locale.value}`,
+    // Disable caching - always fetch fresh data
+    getCachedData: () => undefined,
   }
 );
+
+// Watch for route changes (article ID or locale changes) and refresh data
+watch([articleId, () => locale.value], () => {
+  if (process.client) refresh();
+});
+
+onMounted(() => {
+  if (process.client) refresh();
+});
+onActivated(() => {
+  if (process.client) refresh();
+});
 
 // Handle 404
 if (!pending.value && !newsDetail.value && !error.value) {
@@ -64,6 +78,18 @@ const displayDescription = computed(() => {
     return newsDetail.value.description_en || "";
   }
   return newsDetail.value.description || "";
+});
+
+// Category label(s) for display (API returns title/title_en; type allows optional)
+const categoryLabels = computed(() => {
+  const cat = newsDetail.value?.category;
+  if (!cat) return [];
+  const items = Array.isArray(cat) ? cat : [cat];
+  return items.map((c) =>
+    locale.value === "en"
+      ? (c as { title_en?: string; title?: string }).title_en ?? (c as { title?: string }).title ?? ""
+      : (c as { title?: string; title_en?: string }).title ?? (c as { title_en?: string }).title_en ?? ""
+  );
 });
 
 // Computed for content blocks
@@ -129,16 +155,25 @@ useSeoMeta({
         </p>
         
         <!-- Meta Info -->
-        <div class="flex flex-wrap items-center gap-4 text-sm md:text-base text-gray-500 border-b border-gray-200 pb-6">
+        <div class="text-sm md:text-base text-gray-500 border-b border-gray-200 pb-6">
           <time :datetime="newsDetail.publishedAt">
             {{ new Date(newsDetail.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
           </time>
+          <div v-if="categoryLabels.length" class="mt-2 flex flex-wrap items-center gap-2">
+            <span
+              v-for="(label, i) in categoryLabels"
+              :key="i"
+              class="rounded bg-gray-200 px-2 py-0.5 text-gray-700"
+            >
+              {{ label }}
+            </span>
+          </div>
           <a 
             v-if="newsDetail.external_url" 
             :href="newsDetail.external_url" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="text-blue-600 hover:underline"
+            class="mt-3 inline-block text-blue-600 hover:underline"
           >
             {{ t("news.readOriginalArticle") }} →
           </a>

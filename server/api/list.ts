@@ -28,93 +28,83 @@ export const parseListQuery = (event: H3Event): ListApiQuery => {
 };
 
 // Get List
-export default cachedEventHandler(
-	eventHandler(async (event) => {
-		const { endpoint, limit, offset, fields, filters, q, orders, draftKey } =
-			parseListQuery(event);
+// No caching - always fetch fresh data from microCMS
+export default defineEventHandler(async (event) => {
+	const { endpoint, limit, offset, fields, filters, q, orders, draftKey } =
+		parseListQuery(event);
 
-		if (!endpoint) {
-			throw createError({ statusCode: 400, message: "endpoint is required" });
+	if (!endpoint) {
+		throw createError({ statusCode: 400, message: "endpoint is required" });
+	}
+
+	try {
+		const client = useMicroCMSClient();
+
+		// Set Queries
+		const baseQueries: MicroCMSQueries = {};
+
+		// Use provided fields or default fields
+		// If no fields specified, don't set it - let microCMS return all fields
+		if (fields) {
+			baseQueries.fields = fields;
+		} else {
+			// Only set default fields if we want to limit what we get
+			// For now, let's try without fields to get everything
+			// baseQueries.fields = DEFAULT_FIELDS;
 		}
 
-		try {
-			const client = useMicroCMSClient();
+		if (filters) baseQueries.filters = filters;
+		if (q) baseQueries.q = q;
+		if (orders) baseQueries.orders = orders;
+		if (draftKey) baseQueries.draftKey = draftKey;
 
-			// Set Queries
-			const baseQueries: MicroCMSQueries = {};
-
-			// Use provided fields or default fields
-			// If no fields specified, don't set it - let microCMS return all fields
-			if (fields) {
-				baseQueries.fields = fields;
-			} else {
-				// Only set default fields if we want to limit what we get
-				// For now, let's try without fields to get everything
-				// baseQueries.fields = DEFAULT_FIELDS;
-			}
-
-			if (filters) baseQueries.filters = filters;
-			if (q) baseQueries.q = q;
-			if (orders) baseQueries.orders = orders;
-			if (draftKey) baseQueries.draftKey = draftKey;
-
-			// Get All
-			const fetchAll = async (): Promise<MicroCMSListResponse<unknown>> => {
-				const contents = await client.getAllContents<unknown>({
-					endpoint,
-					queries: baseQueries,
-				});
-				return {
-					contents,
-					totalCount: contents.length,
-					limit: contents.length,
-					offset: 0,
-				};
-			};
-
-			// Get Paged
-			const fetchPaged = async (): Promise<MicroCMSListResponse<unknown>> => {
-				const numericLimit = limit ? Number(limit) : 10;
-				const numericOffset = offset ? Number(offset) : 0;
-				return await client.getList<unknown>({
-					endpoint,
-					queries: {
-						...baseQueries,
-						limit: numericLimit,
-						offset: numericOffset,
-					},
-				});
-			};
-
-			const result = limit === "all" ? await fetchAll() : await fetchPaged();
-			console.log("[API] Successfully fetched list:", {
+		// Get All
+		const fetchAll = async (): Promise<MicroCMSListResponse<unknown>> => {
+			const contents = await client.getAllContents<unknown>({
 				endpoint,
-				totalCount: result.totalCount,
-				contentsLength: result.contents.length,
+				queries: baseQueries,
 			});
-			return result;
-		} catch (error) {
-			console.error("[API] Failed to fetch list:", error);
-			// Log more details for debugging
-			if (error instanceof Error) {
-				console.error("[API] Error message:", error.message);
-				console.error("[API] Error stack:", error.stack);
-			}
-			// Re-throw the error so we can see it in the frontend
-			throw createError({
-				statusCode: 500,
-				message: error instanceof Error ? error.message : "Failed to fetch list",
-				data: error,
+			return {
+				contents,
+				totalCount: contents.length,
+				limit: contents.length,
+				offset: 0,
+			};
+		};
+
+		// Get Paged
+		const fetchPaged = async (): Promise<MicroCMSListResponse<unknown>> => {
+			const numericLimit = limit ? Number(limit) : 10;
+			const numericOffset = offset ? Number(offset) : 0;
+			return await client.getList<unknown>({
+				endpoint,
+				queries: {
+					...baseQueries,
+					limit: numericLimit,
+					offset: numericOffset,
+				},
 			});
+		};
+
+		const result = limit === "all" ? await fetchAll() : await fetchPaged();
+		console.log("[API] Successfully fetched list:", {
+			endpoint,
+			totalCount: result.totalCount,
+			contentsLength: result.contents.length,
+		});
+		return result;
+	} catch (error) {
+		console.error("[API] Failed to fetch list:", error);
+		// Log more details for debugging
+		if (error instanceof Error) {
+			console.error("[API] Error message:", error.message);
+			console.error("[API] Error stack:", error.stack);
 		}
-	}),
-	{
-		// Reduce microCMS data transfer: cache 1h, serve stale 1h while revalidating
-		maxAge: 60 * 60,
-		staleMaxAge: 60 * 60,
-		getKey: (event) => {
-			const url = getRequestURL(event);
-			return url.pathname + url.search;
-		},
-	},
-);
+		// Re-throw the error so we can see it in the frontend
+		throw createError({
+			statusCode: 500,
+			message: error instanceof Error ? error.message : "Failed to fetch list",
+			data: error,
+		});
+	}
+});

@@ -23,7 +23,11 @@ export type ArticleApiQuery = {
 	endpoint?: string;
 	contentId?: string;
 	fields?: string;
-	draftKey?: string;
+	filters?: string;
+	q?: string;
+	limit?: string;
+	offset?: string;
+	orders?: string;
 	depth?: string;
 };
 
