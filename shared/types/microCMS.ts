@@ -28,7 +28,6 @@ export type ArticleApiQuery = {
 	limit?: string;
 	offset?: string;
 	orders?: string;
-	draftKey?: string;
 	depth?: string;
 };
 

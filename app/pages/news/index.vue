@@ -14,6 +14,16 @@ const { data: newsList, pending, error, refresh } = await useFetch<NewsListRespo
   default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
   key: `news-list-${locale.value}`,
   server: true,
+  // Disable caching - always fetch fresh data
+  getCachedData: () => undefined,
+});
+
+// Watch for route changes and refresh data
+const route = useRoute();
+watch(() => route.fullPath, () => {
+  if (process.client) {
+    refresh();
+  }
 });
 
 // Refresh data when navigating to this page to get latest changes

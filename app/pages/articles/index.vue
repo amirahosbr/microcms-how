@@ -2,8 +2,14 @@
 import type { NewsListResponse } from "~~/shared/types/news";
 
 const { locale } = useI18n();
+const route = useRoute();
 
-const { data: articleList, pending, error } = await useFetch<NewsListResponse>(
+// Watch for route changes and refresh data
+watch(() => route.fullPath, () => {
+	if (process.client) refresh();
+});
+
+const { data: articleList, pending, error, refresh } = await useFetch<NewsListResponse>(
 	"/api/article",
 	{
 		query: {
@@ -13,8 +19,19 @@ const { data: articleList, pending, error } = await useFetch<NewsListResponse>(
 			orders: "-publishedAt",
 		},
 		default: () => ({ contents: [], totalCount: 0, limit: 10, offset: 0 }),
+		key: `articles-list-${locale.value}`,
+		server: true,
+		// Disable caching - always fetch fresh data
+		getCachedData: () => undefined,
 	}
 );
+
+onMounted(() => {
+	if (process.client) refresh();
+});
+onActivated(() => {
+	if (process.client) refresh();
+});
 
 const getCategoryLabels = (item: { category?: unknown | unknown[] | null }) => {
 	const cat = item.category;

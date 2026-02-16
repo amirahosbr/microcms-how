@@ -11,10 +11,9 @@ import { useMicroCMSClient } from "~~/shared/utils/microcms";
 const FIELDS =
 	"id,createdAt,publishedAt,title,title_en,description,description_en,image,thumbnail,category,location";
 
-export default cachedEventHandler(
-	eventHandler(async () => {
-		try {
-			const client = useMicroCMSClient();
+export default eventHandler(async () => {
+	try {
+		const client = useMicroCMSClient();
 
 			// 1. Try featured first (requires `featured` boolean field on news API)
 			try {
@@ -47,14 +46,8 @@ export default cachedEventHandler(
 
 			const article = latestRes.contents[0] ?? null;
 			return { article, source: article ? ("latest" as const) : null };
-		} catch (error) {
-			console.error("[API] Failed to fetch featured news:", error);
-			return { article: null, source: null };
-		}
-	}),
-	{
-		maxAge: 60 * 60,
-		staleMaxAge: 60 * 60,
-		getKey: () => "/api/featured-news",
-	},
-);
+	} catch (error) {
+		console.error("[API] Failed to fetch featured news:", error);
+		return { article: null, source: null };
+	}
+});

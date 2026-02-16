@@ -93,7 +93,6 @@ export const useMicroCMS = () => {
           : queries.fields
         queryParams.set('fields', fields)
       }
-      if (queries?.draftKey) queryParams.set('draftKey', queries.draftKey)
 
       const response = await $fetch<T>(`/api/article?${queryParams.toString()}`)
       return response as T

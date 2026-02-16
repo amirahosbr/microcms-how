@@ -18,7 +18,7 @@ const articleId = computed(() => {
 });
 
 // Fetch news detail from microCMS
-const { data: newsDetail, pending, error } = await useFetch<NewsDetail>(
+const { data: newsDetail, pending, error, refresh } = await useFetch<NewsDetail>(
   "/api/article",
   {
     query: {
@@ -27,8 +27,22 @@ const { data: newsDetail, pending, error } = await useFetch<NewsDetail>(
     },
     default: () => undefined,
     key: `article-${articleId.value}-${locale.value}`,
+    // Disable caching - always fetch fresh data
+    getCachedData: () => undefined,
   }
 );
+
+// Watch for route changes (article ID or locale changes) and refresh data
+watch([articleId, () => locale.value], () => {
+  if (process.client) refresh();
+});
+
+onMounted(() => {
+  if (process.client) refresh();
+});
+onActivated(() => {
+  if (process.client) refresh();
+});
 
 // Handle 404
 if (!pending.value && !newsDetail.value && !error.value) {
