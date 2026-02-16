@@ -1,5 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from '@tailwindcss/vite'
+import type { NuxtConfig } from 'nuxt/config'
+
+type VitePlugins = NonNullable<NonNullable<NuxtConfig['vite']>['plugins']>
 
 export default defineNuxtConfig({
   srcDir: 'app',
@@ -10,7 +13,7 @@ export default defineNuxtConfig({
     name: 'HOW TO?',
   },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()] as unknown as VitePlugins
   },
   css: ['~/assets/css/main.css'],
   modules: ['@nuxtjs/i18n', '@nuxt/image', '@nuxtjs/seo'],
