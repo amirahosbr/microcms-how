@@ -1,31 +1,38 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from '@tailwindcss/vite'
+import type { NuxtConfig } from 'nuxt/config'
+
+type VitePlugins = NonNullable<NonNullable<NuxtConfig['vite']>['plugins']>
 
 export default defineNuxtConfig({
   srcDir: 'app',
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   site: {
-    url: 'https://example.com',
+    url: 'https://microcms-how.vercel.app',
     name: 'HOW TO?',
   },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()] as unknown as VitePlugins
   },
   css: ['~/assets/css/main.css'],
-  modules: ['@nuxtjs/i18n', '@nuxtjs/seo'],
+  modules: ['@nuxtjs/i18n', '@nuxt/image', '@nuxtjs/seo'],
   i18n: {
     locales: [
       { code: 'ja', iso: 'ja-JP', name: '日本語', file: 'ja.json' },
       { code: 'en', iso: 'en-US', name: 'English', file: 'en.json' }
     ],
-    defaultLocale: 'ja',
+    defaultLocale: 'en',
     strategy: 'prefix_except_default',
     langDir: 'locales',
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',
-      redirectOn: 'root'
+      redirectOn: 'root',
+      alwaysRedirect: false
+    },
+    compilation: {
+      strictMessage: false
     }
   },
   typescript: {
@@ -40,6 +47,7 @@ export default defineNuxtConfig({
     microcms: {
       serviceDomain: process.env.MICROCMS_SERVICE_DOMAIN,
       apiKey: process.env.MICROCMS_API_KEY,
+      webhookSecret: process.env.MICROCMS_WEBHOOK_SECRET,
     },
   }
 })

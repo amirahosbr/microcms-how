@@ -8,42 +8,145 @@ type Props = {
 const props = defineProps<Props>();
 const { locale } = useI18n();
 
-const displayName = computed(() => props.block.name);
-const displayRole = computed(() => 
-  locale.value === "ja" ? props.block.role : props.block.role_en || props.block.role
-);
-const displayBio = computed(() => 
-  locale.value === "ja" ? props.block.bio : props.block.bio_en || props.block.bio
-);
+// Get bio content - no fallback, only show if locale-specific content exists
+const displayBio = computed(() => {
+  const bioHtml = locale.value === "en" ? props.block.bio_en : props.block.bio;
+  return bioHtml ? useSanitize().sanitizeHtml(bioHtml) : "";
+});
+
+// Check if locale-specific content exists
+const hasContent = computed(() => {
+  return locale.value === "en" ? !!props.block.bio_en : !!props.block.bio;
+});
+
+// Extract position value from array or string format
+const extractPosition = (pos: "left" | "right" | ("left" | "right")[] | undefined): "left" | "right" | null => {
+  if (!pos) return null;
+  if (Array.isArray(pos) && pos.length > 0) {
+    const value = pos[0];
+    return value === "left" || value === "right" ? value : null;
+  }
+  return pos === "left" || pos === "right" ? pos : null;
+};
+
+// Get image position: imagePosition_en (EN) > imagePosition (default) > "left"
+const imagePosition = computed((): "left" | "right" => {
+  if (locale.value === "en" && props.block.imagePosition_en) {
+    return extractPosition(props.block.imagePosition_en) ?? "left";
+  }
+  return extractPosition(props.block.imagePosition) ?? "left";
+});
+
+const isImageRight = computed(() => imagePosition.value === "right");
 </script>
 
 <template>
-  <div class="flex flex-col md:flex-row gap-6 md:gap-8 py-8">
-    <!-- Image -->
-    <div v-if="block.image" class="flex-shrink-0">
+  <!-- Text wrapping layout: image floats, text flows around it (like Microsoft Word) -->
+  <section v-if="hasContent" class="profile-card-wrapper">
+    <!-- Image - only show if locale-specific content exists -->
+    <div 
+      v-if="block.image" 
+      class="profile-image-float"
+      :class="{
+        'float-right': isImageRight,
+        'float-left': !isImageRight,
+      }"
+    >
       <img
         :src="block.image.url"
-        :alt="displayName"
-        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover"
+        alt="Profile"
+        class="w-48 h-48 md:w-56 md:h-56 object-cover object-top rounded-md"
+        loading="lazy"
       />
     </div>
-    <div v-else class="flex-shrink-0 w-32 h-32 md:w-40 md:h-40 rounded-full bg-gray-200 flex items-center justify-center">
+    <div 
+      v-else 
+      class="profile-image-float w-48 h-48 md:w-56 md:h-56 bg-gray-200 rounded-md flex items-center justify-center"
+      :class="{
+        'float-right': isImageRight,
+        'float-left': !isImageRight,
+      }"
+    >
       <span class="text-gray-400 text-sm">No Image</span>
     </div>
 
-    <!-- Content -->
-    <div class="flex-1">
-      <h3 class="text-xl md:text-2xl font-semibold text-gray-900 mb-2">
-        {{ displayName }}
-      </h3>
-      <p class="text-sm md:text-base text-gray-600 mb-4">
-        {{ displayRole }}
-      </p>
-      <div 
-        v-if="displayBio" 
-        class="prose prose-sm max-w-none"
-        v-html="displayBio"
-      />
-    </div>
-  </div>
+    <!-- Text content - flows around the floated image -->
+    <div 
+      v-if="displayBio" 
+      class="profile-text-content prose prose-base max-w-none text-gray-700 leading-relaxed"
+      v-html="displayBio"
+    />
+    
+    <!-- Clear float to prevent layout issues -->
+    <div class="clear-both"></div>
+  </section>
 </template>
+
+<style scoped>
+.profile-card-wrapper {
+  overflow: hidden; /* Contain floats */
+}
+
+/* Mobile: stack image and text */
+.profile-image-float {
+  margin-bottom: 16px;
+  float: none;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Desktop: float image to allow text wrapping */
+@media (min-width: 768px) {
+  .profile-image-float {
+    margin-bottom: 16px;
+    margin-top: 0;
+  }
+
+  .profile-image-float.float-right {
+    float: right;
+    margin-left: 16px;
+    margin-right: 0;
+  }
+
+  .profile-image-float.float-left {
+    float: left;
+    margin-right: 16px;
+    margin-left: 0;
+  }
+}
+
+/* Text content flows around floated image */
+.profile-text-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Spacing between paragraphs and elements in bio */
+.profile-text-content :deep(p) {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.profile-text-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.profile-text-content :deep(strong) {
+  font-weight: 700;
+}
+
+/* Clear float */
+.clear-both {
+  clear: both;
+}
+
+/* Ensure images inside text don't float */
+.profile-text-content :deep(img) {
+  float: none !important;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+}
+</style>

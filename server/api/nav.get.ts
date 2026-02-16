@@ -1,8 +1,7 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+/**
+ * Nav is imported at build time so it's bundled and works in serverless (Vercel).
+ * Reading from process.cwd() + 'data/nav.json' fails in production because data/ is not in the deploy.
+ */
+import navData from "../../data/nav.json";
 
-export default defineEventHandler(() => {
-  const path = join(process.cwd(), 'data', 'nav.json')
-  const raw = readFileSync(path, 'utf-8')
-  return JSON.parse(raw) as { nav: unknown[] }
-})
+export default defineEventHandler(() => navData as { nav: unknown[] });

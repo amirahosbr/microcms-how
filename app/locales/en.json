@@ -1,0 +1,14 @@
+{
+  "news": {
+    "title": "News",
+    "backToNews": "Back to News",
+    "readOriginalArticle": "Read Original Article",
+    "noContent": "No content available",
+    "failedToLoad": "Failed to load article",
+    "notFound": "News article not found"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred"
+  }
+}

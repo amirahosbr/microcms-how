@@ -1,1 +1,23 @@
-{"nav":[{"name":"News","path":"/news"},{"name":"Articles","path":"/articles"},{"name":"Contact","path":"/contact","children":[{"name":"Simple","path":"/contact/simple"},{"name":"Dynamic Field","path":"/contact/dynamic-field"},{"name":"Multiple Steps","path":"/contact/multiple-steps"}]},{"name":"About","path":"/about"}]}
+{
+  "nav": [
+    {
+      "name": "News",
+      "path": "/news",
+      "children": [
+        { "name": "News No Stale", "path": "/news-no-stale" },
+        { "name": "News Cached (no webhook)", "path": "/news-cached" }
+      ]
+    },
+    { "name": "Articles", "path": "/articles" },
+    {
+      "name": "Contact",
+      "path": "/contact",
+      "children": [
+        { "name": "Simple", "path": "/contact/simple" },
+        { "name": "Dynamic Field", "path": "/contact/dynamic-field" },
+        { "name": "Multiple Steps", "path": "/contact/multiple-steps" }
+      ]
+    },
+    { "name": "About", "path": "/about" }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "headers": [
+    {
+      "source": "/:path*.(css|js|woff|woff2|ttf|eot|otf)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "CDN-Cache-Control", "value": "public, max-age=31536000" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/:path*.(jpg|jpeg|png|gif|webp|svg|ico)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "CDN-Cache-Control", "value": "public, max-age=31536000" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" },
+        { "key": "CDN-Cache-Control", "value": "public, s-maxage=1800" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, s-maxage=3600" }
+      ]
+    },
+    {
+      "source": "/api/article",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=3600, stale-while-revalidate=7200" },
+        { "key": "CDN-Cache-Control", "value": "public, s-maxage=3600" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, s-maxage=7200" }
+      ]
+    },
+    {
+      "source": "/api/list",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=1800, stale-while-revalidate=3600" },
+        { "key": "CDN-Cache-Control", "value": "public, s-maxage=1800" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, s-maxage=3600" }
+      ]
+    },
+    {
+      "source": "/api/featured-news",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=3600, stale-while-revalidate=7200" },
+        { "key": "CDN-Cache-Control", "value": "public, s-maxage=3600" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, s-maxage=7200" }
+      ]
+    },
+    {
+      "source": "/api/list-no-stale",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=3600" },
+        { "key": "CDN-Cache-Control", "value": "public, s-maxage=3600" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, s-maxage=3600" }
+      ]
+    },
+    {
+      "source": "/:path*",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=60, stale-while-revalidate=300" },
+        { "key": "CDN-Cache-Control", "value": "public, s-maxage=180" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, s-maxage=300" }
+      ]
+    }
+  ]
+}
