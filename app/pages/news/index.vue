@@ -43,6 +43,18 @@ const getLocalizedTitle = (item: { title?: string; title_en?: string }) => {
 const isMediaCategory = (item: { category?: { id?: string } | null }) => {
   return item.category?.id === "media";
 };
+
+// Category label(s) for list (single or array; title/title_en)
+const getCategoryLabels = (item: { category?: unknown | unknown[] | null }) => {
+  const cat = item.category;
+  if (!cat) return [];
+  const items = Array.isArray(cat) ? cat : [cat];
+  return items.map((c: unknown) =>
+    locale.value === "en"
+      ? (c as { title_en?: string; title?: string }).title_en ?? (c as { title?: string }).title ?? ""
+      : (c as { title?: string; title_en?: string }).title ?? (c as { title_en?: string }).title_en ?? ""
+  );
+};
 </script>
 
 <template>
@@ -103,6 +115,15 @@ const isMediaCategory = (item: { category?: { id?: string } | null }) => {
               >
                 {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
               </time>
+              <div v-if="getCategoryLabels(item).length" class="mt-2 flex flex-wrap gap-2">
+                <span
+                  v-for="(label, i) in getCategoryLabels(item)"
+                  :key="i"
+                  class="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+                >
+                  {{ label }}
+                </span>
+              </div>
             </div>
           </a>
 
@@ -135,6 +156,15 @@ const isMediaCategory = (item: { category?: { id?: string } | null }) => {
               >
                 {{ new Date(item.publishedAt).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}
               </time>
+              <div v-if="getCategoryLabels(item).length" class="mt-2 flex flex-wrap gap-2">
+                <span
+                  v-for="(label, i) in getCategoryLabels(item)"
+                  :key="i"
+                  class="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+                >
+                  {{ label }}
+                </span>
+              </div>
             </div>
           </NuxtLink>
         </template>
