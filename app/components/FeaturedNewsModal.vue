@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * Featured news modal. Data is prefetched on the articles page so this composable
+ * reuses the same useFetch state and the modal can show without waiting for a new request.
+ */
 const { article, hasArticle, pending, source } = useFeaturedNews();
 
 const isOpen = ref(false);

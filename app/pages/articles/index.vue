@@ -4,6 +4,9 @@ import type { NewsListResponse } from "~~/shared/types/news";
 const { locale } = useI18n();
 const route = useRoute();
 
+// Prefetch featured news so the modal has data as soon as it mounts (avoids delay from client-only fetch)
+useFeaturedNews();
+
 // Watch for route changes and refresh data
 watch(() => route.fullPath, () => {
 	if (process.client) refresh();
@@ -110,13 +113,13 @@ const getCategoryLabels = (item: { category?: unknown | unknown[] | null }) => {
 						<h2
 							class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2"
 						>
-							{{ item.title }}
+							{{ item.title_en }}
 						</h2>
 						<p
-							v-if="item.title_en"
+							v-if="item.title"
 							class="text-sm text-gray-600 mb-4 line-clamp-2"
 						>
-							{{ item.title_en }}
+							{{ item.title }}
 						</p>
 						<time
 							:datetime="item.publishedAt"
