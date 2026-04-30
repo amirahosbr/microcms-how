@@ -29,3 +29,22 @@ export type SubmitResult = {
 	publishedUrl: string;
 	status: SubmitMode;
 };
+
+export type IngestAiBlock = {
+	type: "richText" | "profile";
+	content?: string;
+	contentEn?: string;
+	bio?: string;
+	bioEn?: string;
+	profileImageName?: string;
+};
+
+export type IngestResult = {
+	title: string;
+	titleEn: string;
+	description: string;
+	descriptionEn: string;
+	featured: boolean;
+	categoryHint: string;
+	blocks: IngestAiBlock[];
+};

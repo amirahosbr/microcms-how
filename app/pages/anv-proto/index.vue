@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
 	CategoryOption,
+	IngestResult,
 	SubmitMode,
 	SubmitResult,
 	UiBlock,
@@ -21,6 +22,10 @@ const categoryEndpoint = ref("category");
 const submitLoading = ref(false);
 const submitError = ref("");
 const submitResult = ref<SubmitResult | null>(null);
+const ingestLoading = ref(false);
+const ingestError = ref("");
+const documentFile = ref<File | null>(null);
+const ingestImageFiles = ref<File[]>([]);
 
 const uid = (): string => {
 	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -72,6 +77,18 @@ const onProfileImageChange = (id: string, event: Event): void => {
 	const input = target instanceof HTMLInputElement ? target : null;
 	const file = input?.files?.[0] ?? null;
 	setProfileImage(id, file);
+};
+
+const onDocumentFileChange = (event: Event): void => {
+	const target = event.target;
+	const input = target instanceof HTMLInputElement ? target : null;
+	documentFile.value = input?.files?.[0] ?? null;
+};
+
+const onIngestImagesChange = (event: Event): void => {
+	const target = event.target;
+	const input = target instanceof HTMLInputElement ? target : null;
+	ingestImageFiles.value = input?.files ? Array.from(input.files) : [];
 };
 
 const fetchCategories = async (): Promise<void> => {
@@ -141,6 +158,72 @@ const buildPayload = (): {
 	};
 };
 
+const mapIngestBlocksToUi = (
+	ingest: IngestResult,
+	images: File[],
+): UiBlock[] => {
+	return ingest.blocks.map((block) => {
+		if (block.type === "richText") {
+			return {
+				id: uid(),
+				type: "richText",
+				content: block.content ?? "",
+				contentEn: block.contentEn ?? "",
+			};
+		}
+
+		const matchedImage =
+			images.find((image) => image.name === block.profileImageName) ?? null;
+		return {
+			id: uid(),
+			type: "profile",
+			bio: block.bio ?? "",
+			bioEn: block.bioEn ?? "",
+			imageFile: matchedImage,
+		};
+	});
+};
+
+const onAiIngest = async (): Promise<void> => {
+	ingestError.value = "";
+	ingestLoading.value = true;
+	try {
+		if (!documentFile.value) {
+			throw new Error("Please upload one document for AI ingest.");
+		}
+
+		const formData = new FormData();
+		formData.append("document", documentFile.value);
+		ingestImageFiles.value.forEach((image, index) => {
+			formData.append(`image:${index}`, image);
+		});
+
+		const result = await $fetch<IngestResult>("/api/anv-proto/ingest", {
+			method: "POST",
+			body: formData,
+		});
+
+		title.value = result.title;
+		titleEn.value = result.titleEn;
+		description.value = result.description;
+		descriptionEn.value = result.descriptionEn;
+		featured.value = result.featured;
+		blocks.value = mapIngestBlocksToUi(result, ingestImageFiles.value);
+	} catch (error: unknown) {
+		const fallback = "AI ingest failed.";
+		if (error && typeof error === "object" && "data" in error) {
+			const wrapped = error as { data?: { message?: string } };
+			ingestError.value = wrapped.data?.message ?? fallback;
+		} else if (error instanceof Error && error.message) {
+			ingestError.value = error.message;
+		} else {
+			ingestError.value = fallback;
+		}
+	} finally {
+		ingestLoading.value = false;
+	}
+};
+
 const onSubmit = async (mode: SubmitMode): Promise<void> => {
 	submitError.value = "";
 	submitResult.value = null;
@@ -195,6 +278,38 @@ await fetchCategories();
 				Protected by native browser auth dialog.
 			</p>
 			<div class="mt-8 space-y-6">
+				<div class="rounded-xl border bg-white p-6">
+					<h2 class="text-lg font-semibold text-slate-900">AI Ingest</h2>
+					<p class="mt-1 text-sm text-slate-600">
+						Upload one document and optional images, then AI will prefill the form below.
+					</p>
+					<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+						<label class="block text-sm">
+							<span class="mb-1 block">Document (docx/txt)</span>
+							<input type="file" accept=".docx,.txt,.md,.html,.htm,.json" @change="onDocumentFileChange" />
+						</label>
+						<label class="block text-sm">
+							<span class="mb-1 block">Reference images (optional)</span>
+							<input type="file" accept="image/*" multiple @change="onIngestImagesChange" />
+						</label>
+					</div>
+					<p v-if="documentFile" class="mt-2 text-xs text-slate-500">
+						Document: {{ documentFile.name }}
+					</p>
+					<p v-if="ingestImageFiles.length" class="mt-1 text-xs text-slate-500">
+						Images: {{ ingestImageFiles.map((file) => file.name).join(", ") }}
+					</p>
+					<p v-if="ingestError" class="mt-3 text-sm text-red-600">{{ ingestError }}</p>
+					<button
+						type="button"
+						:disabled="ingestLoading"
+						class="mt-4 rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+						@click="onAiIngest"
+					>
+						{{ ingestLoading ? "Ingesting..." : "Use AI to Fill Form" }}
+					</button>
+				</div>
+
 				<form class="space-y-6 rounded-xl border bg-white p-6" @submit.prevent>
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<label class="block text-sm">
